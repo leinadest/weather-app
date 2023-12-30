@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <script src="./bundle.js" defer></script>
+</head>
+<body>
+    <header>
+        <img src="./images/partly-cloudy-day.svg">
+        <h1>Weather</h1>
+        <input type="text" placeholder="Enter location">
+        <button class="search"></button>
+        <div class="container">
+            System:
+            <button>Metric</button>
+            <button>Imperial</button>
+        </div>
+    </header>
+    <main>
+        <div class="dark-bg">
+            <h3 class="location">Enter a location to see its weather information</h2>
+            <h2></h2>
+            <h3></h3>
+            <h3></h3>
+        </div>
+    </main>
+    <aside>
+        <div class="past-weather"></div>
+        <div class="past-weather"></div>
+        <div class="past-weather"></div>
+        <div class="past-weather"></div>
+        <div class="past-weather"></div>
+    </aside>
+    <section class="additional-info">
+        <h2>Additional Information</h2>
+        <div class="flex-container">
+            <section>
+                It feels like:
+                <h3>-1°C</h3>
+            </section>
+            <section>
+                <h3>Wind</h3>
+                Speed: 14 km/h
+                <br>
+                Gust: 26 km/h
+                <br>
+                Direction: N
+            </section>
+            <section>
+                <h3>Pressure</h3>
+                1000 mb
+            </section>
+            <section>
+                <h3>Precipitation</h3>
+                2 mm
+            </section>
+            <section>
+                <h3>Humidity</h3>
+                75%
+            </section>
+            <section>
+                <h3>Cloud Coverage</h3>
+                50%
+            </section>
+            <section>
+                <h3>UV Index</h3>
+                1
+            </section>
+        </div>
+    </section>
+</body>
+</html>

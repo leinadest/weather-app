@@ -38,10 +38,16 @@ header h1 {
     margin-left: 5px;
 }
 
+header form {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
 header input {
     width: 300px;
     padding: 5px 15px;
-    margin-inline: auto 5px;
+    margin-right: 5px;
     border-radius: 15px;
 }
 
@@ -74,7 +80,6 @@ main {
     color: white;
     text-align: center;
     height: 300px;
-    background-image: url('./images/sunny.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: top;
@@ -120,7 +125,6 @@ aside .past-weather {
     box-sizing: border-box;
     height: 100px;
     background-color: rgba(0, 0, 0, 0.4);
-    background-image: url('images/rain.svg');
     background-size: 80px;
     background-repeat: no-repeat;
     background-position: center;
