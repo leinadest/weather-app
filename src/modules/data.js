@@ -3,7 +3,13 @@ import changeDate from './utils';
 const baseURL = 'https://api.weatherapi.com/v1';
 const APIKey = '25111dbd26004b48957195332232912';
 
-let measurementSystem = 'Metric';
+const currentState = {
+  measurementSystem: 'Metric',
+  location: '',
+  mainWeatherData: null,
+  otherWeathersData: null,
+  additionalData: null
+}
 
 // API FETCH FUNCTIONS
 
@@ -64,14 +70,6 @@ export async function getLocalTime(location) {
 
 // PROJECT FUNCTIONS
 
-export function getMeasurementSystem() {
-  return measurementSystem;
-}
-
-export function setMeasurementSystem(system) {
-  measurementSystem = system;
-}
-
 /**
  * @param { string } location
  * @returns the arguments necessary for the weather data on the main HTML
@@ -95,7 +93,7 @@ export async function getMainWeatherData(locationInput) {
   let maxTemp;
   let minTemp;
 
-  if (measurementSystem === 'Metric') {
+  if (currentState.measurementSystem === 'Metric') {
     temp = `${currentWeatherData.temp_c}°C`;
     maxTemp = `${forecastData.day.maxtemp_c}°C`;
     minTemp = `${forecastData.day.mintemp_c}°C`;
@@ -105,7 +103,7 @@ export async function getMainWeatherData(locationInput) {
     minTemp = `${forecastData.day.mintemp_f}°F`;
   }
 
-  return [location, temp, condition, maxTemp, minTemp, measurementSystem];
+  return [location, temp, condition, maxTemp, minTemp, currentState.measurementSystem];
 }
 
 /**
@@ -122,7 +120,7 @@ export async function getOtherWeathersData(location) {
   ];
 
   let units = ['f', '°F'];
-  if (measurementSystem === 'Metric') units = ['c', '°C'];
+  if (currentState.measurementSystem === 'Metric') units = ['c', '°C'];
 
   const otherWeathers = [];
 
@@ -144,7 +142,7 @@ export async function getAdditionalData(location) {
   const currentWeatherData = await getCurrentWeatherData(location);
 
   const u =
-    measurementSystem === 'Metric'
+    currentState.measurementSystem === 'Metric'
       ? ['c', '°C', 'kph', 'mb', 'mm']
       : ['f', '°F', 'mph', 'in', 'in'];
 
@@ -164,4 +162,15 @@ export async function getAdditionalData(location) {
     ['Cloud Coverage', `${currentWeatherData.cloud}%`],
     ['UV Index', currentWeatherData.uv],
   ];
+}
+
+export function getCurrentState() {
+  return currentState;
+}
+
+export function setCurrentState(state) {
+  Object.entries(state).forEach((entry) => {
+    const [key, value] = entry;
+    currentState[key] = value;
+  });
 }

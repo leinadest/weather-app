@@ -4,7 +4,7 @@ import getCurrentWeatherData, {
   getHistoryData,
   getMeasurementSystem,
 } from './data';
-import handleForm from './events';
+import handleForm, { handleButton } from './events';
 import { translateCondition, getIcon, getImage } from './utils';
 
 export class Header {
@@ -27,13 +27,15 @@ export class Header {
     containerDiv.classList = 'container';
     containerDiv.textContent = 'System:';
     header.appendChild(containerDiv);
-
+    
     const metricButton = document.createElement('button');
     metricButton.textContent = 'Metric';
+    metricButton.addEventListener('click', handleButton)
     containerDiv.appendChild(metricButton);
 
     const imperialButton = document.createElement('button');
     imperialButton.textContent = 'Imperial';
+    imperialButton.addEventListener('click', handleButton)
     containerDiv.appendChild(imperialButton);
 
     const searchForm = document.createElement('form');
