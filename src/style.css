@@ -82,7 +82,7 @@ main {
     height: 300px;
     background-size: cover;
     background-repeat: no-repeat;
-    background-position: top;
+    background-position: center;
 }
 
 main .dark-bg {

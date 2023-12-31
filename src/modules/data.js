@@ -1,4 +1,4 @@
-import decrementDate from './utils';
+import changeDate from './utils';
 
 const baseURL = "https://api.weatherapi.com/v1";
 const APIKey = "25111dbd26004b48957195332232912";
@@ -35,11 +35,11 @@ export default async function getCurrentWeatherData(location) {
  * @returns the forecast data of a specified location by a specified number 
  * of days ahead
  */
-export async function getForecastData(location, days) {
-  const url = `${baseURL}/forecast.json?key=${APIKey}&q=${location}&days=${days}`;
+export async function getForecastData(location, dt) {
+  const url = `${baseURL}/forecast.json?key=${APIKey}&q=${location}&dt=${dt}`;
   const response = await fetch(url);
   const data = await response.json();
-  return data.forecast.forecastday;
+  return data.forecast.forecastday[0];
 }
 
 /**
@@ -78,14 +78,14 @@ export function setMeasurementSystem(system) {
  * element
  */
 export async function getMainWeatherData(locationInput) {
-  
+  const localTime = getLocalTime(locationInput);
   const locationData = await getLocationData(locationInput);
   const currentWeatherData = await getCurrentWeatherData(locationInput);
-  const todaysForecastData = (await getForecastData(locationInput, 1))["0"].day;
+  const forecastData = await getForecastData(locationInput, localTime);
 
   let location = locationData.name ?? '';
   if (locationData.region && locationData.region !== location) {
-      location += `, ${locationData.region}`;
+    location += `, ${locationData.region}`;
   }
 
   location += `, ${locationData.country}`;
@@ -96,55 +96,66 @@ export async function getMainWeatherData(locationInput) {
   let minTemp;
 
   if (measurementSystem === 'Metric') {
-      temp = currentWeatherData.temp_c;
-      maxTemp = todaysForecastData.maxtemp_c;
-      minTemp = todaysForecastData.mintemp_c;
+    temp = `${currentWeatherData.temp_c}°C`;
+    maxTemp = `${forecastData.day.maxtemp_c}°C`;
+    minTemp = `${forecastData.day.mintemp_c}°C`;
   } else {
-      temp = currentWeatherData.temp_f;
-      maxTemp = todaysForecastData.maxtemp_f;
-      minTemp = todaysForecastData.mintemp_f;
+    temp = `${currentWeatherData.temp_f}°F`;
+    maxTemp = `${forecastData.day.maxtemp_f}°F`;
+    minTemp = `${forecastData.day.mintemp_f}°F`;
   }
 
   return [location, temp, condition, maxTemp, minTemp, measurementSystem];
 }
 
 /**
- * @param { string } locationInput 
+ * @param { string } location 
  */
-export async function getOtherWeathersData(locationInput) {
-  const forecastData = await getForecastData(locationInput, 3);
-  const localDate = (await getLocalTime(locationInput)).slice(0, 10);
-  const historyData = [
-    (await getHistoryData(locationInput, decrementDate(localDate, 1))).day,
-    (await getHistoryData(locationInput, decrementDate(localDate, 2))).day,
-    (await getHistoryData(locationInput, decrementDate(localDate, 3))).day
+export async function getOtherWeathersData(location) {
+  const localDate = (await getLocalTime(location)).slice(0, 10);
+  const otherWeathersData = [
+    (await getHistoryData(location, changeDate(localDate, -3))).day,
+    (await getHistoryData(location, changeDate(localDate, -2))).day,
+    (await getHistoryData(location, changeDate(localDate, -1))).day,
+    (await getForecastData(location, changeDate(localDate, 1))).day,
+    (await getForecastData(location, changeDate(localDate, 2))).day
   ];
-  
-  let notations = ['f', '°F'];
-  if (measurementSystem === 'Metric') notations = ['c', '°C'];
 
-  const otherWeathers = {};
+  let units = ['f', '°F'];
+  if (measurementSystem === 'Metric') units = ['c', '°C'];
 
-  for (let daysAgo = 3; daysAgo > 0; daysAgo -= 1) {
-    const avgTemp = historyData[daysAgo-1][`avgtemp_${notations[0]}`];
-    const condition = historyData[daysAgo-1].condition.text;
+  const otherWeathers = [];
 
-    otherWeathers[`${daysAgo} Day(s) Ago`] = [
-      `${avgTemp}${notations[1]}`,
-      condition
-    ];
-  }
+  otherWeathersData.forEach((data, i) => {
+    const avgTemp = data[`avgtemp_${units[0]}`];
+    const condition = data.condition.text;
+    const daysAway = ((i - 3) >= 0) ? (i - 2) : (i - 3);
 
-  for (let daysAhead = 1; daysAhead < 3; daysAhead += 1) {
-    const avgTemp = forecastData[daysAhead].day[`avgtemp_${notations[0]}`];
-    const condition = forecastData[daysAhead].day.condition.text;
+    const description = (
+      (daysAway > 0) ? `${daysAway} Day(s) Ahead` : `${-daysAway} Day(s) Ago`
+    );
 
-    otherWeathers[`${daysAhead} Days Ahead`] = [
-      `${avgTemp}°${notations[1]}`,
-      condition
-    ];
-
-  }
+    otherWeathers[i] = [description, `${avgTemp}${units[1]}`, condition];
+  });
 
   return otherWeathers;
 }
+
+// export async function getAdditionalData(locationInput) {
+//   const currentWeatherData = await getCurrentWeatherData(location);
+//   const forecastData = (await getForecastData(location, 1)).day[0];
+
+//   let units = ['f', '°F', 'mph', 'in'];
+//   if (measurementSystem === 'Metric') units = ['c', '°C', 'kph', 'mb'];
+
+//   const additionalData = {
+//     "It feels like: ": currentWeatherData[`feelslike_${units[0]}`],
+//     "Wind": {
+//       "Speed: ": currentWeatherData[`wind_${units[2]}`] + units[2],
+//       "Gust: ": currentWeatherData[`gust_${units[2]}`] + units[2],
+//       "Direction: ": currentWeatherData.wind_dir
+//     },
+//     "Pressure": currentWeatherData[`pressure_${units[3]}`] + units[3],
+//     "Precipitation": currentWeatherData
+//   }
+// }

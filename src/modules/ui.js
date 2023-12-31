@@ -92,19 +92,12 @@ export class Main {
     temp,
     condition,
     maxTemp,
-    minTemp,
-    measurementSystem,
+    minTemp
   ) {
-    let notation = "°F";
-    if (measurementSystem === "Metric") notation = "°C";
-
-    this.tempH2.textContent = `${temp}${notation}`;
-    this.extremaH3.textContent = (
-        `Max: ${maxTemp}${notation}, Min: ${minTemp}${notation}`
-    );
-
+    this.tempH2.textContent = temp;
     this.locationH3.textContent = `Location: ${location}`;
     this.conditionH3.textContent = condition;
+    this.extremaH3.textContent = `Max: ${maxTemp}, Min: ${minTemp}`;
 
     const image = getImage(translateCondition(condition));
     this.main.style.backgroundImage = `url("./images/${image}")`;
@@ -130,9 +123,8 @@ export class Aside {
   }
 
   updateOtherWeathersData(otherWeathersData) {
-    for (let i = 0; i < 5; i += 1) {
-      const description = Object.keys(otherWeathersData)[i];
-      const [avgTemp, condition] = Object.values(otherWeathersData)[i];
+    otherWeathersData.forEach((data, i) => {
+      const [description, avgTemp, condition] = data;
       const icon = getIcon(translateCondition(condition));
 
       this.divs[i].innerHTML = description;
@@ -142,7 +134,7 @@ export class Aside {
       avgTempH3.textContent = avgTemp;
 
       this.divs[i].appendChild(avgTempH3);
-    }
+    });
   }
 }
 
