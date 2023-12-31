@@ -1,3 +1,5 @@
+import decrementDate from './utils';
+
 const baseURL = "https://api.weatherapi.com/v1";
 const APIKey = "25111dbd26004b48957195332232912";
 
@@ -45,11 +47,19 @@ export async function getForecastData(location, days) {
  * @param { string } dt dt format: "YYYY-MM-DD"
  * @returns the weather data of a past date specified by dt
  */
-export async function getHistory(location, dt) {
+export async function getHistoryData(location, dt) {
   const url = `${baseURL}/history.json?key=${APIKey}&q=${location}&dt=${dt}`;
   const response = await fetch(url);
   const data = await response.json();
   return data.forecast.forecastday[0];
+}
+
+/**
+ * @param { string } location 
+ * @returns the local time of the specified location (format: YYYY-MM-DD HH:MM)
+ */
+export async function getLocalTime(location) {
+  return (await getLocationData(location)).localtime;
 }
 
 // PROJECT FUNCTIONS
@@ -96,4 +106,45 @@ export async function getMainWeatherData(locationInput) {
   }
 
   return [location, temp, condition, maxTemp, minTemp, measurementSystem];
+}
+
+/**
+ * @param { string } locationInput 
+ */
+export async function getOtherWeathersData(locationInput) {
+  const forecastData = await getForecastData(locationInput, 3);
+  const localDate = (await getLocalTime(locationInput)).slice(0, 10);
+  const historyData = [
+    (await getHistoryData(locationInput, decrementDate(localDate, 1))).day,
+    (await getHistoryData(locationInput, decrementDate(localDate, 2))).day,
+    (await getHistoryData(locationInput, decrementDate(localDate, 3))).day
+  ];
+  
+  let notations = ['f', '°F'];
+  if (measurementSystem === 'Metric') notations = ['c', '°C'];
+
+  const otherWeathers = {};
+
+  for (let daysAgo = 3; daysAgo > 0; daysAgo -= 1) {
+    const avgTemp = historyData[daysAgo-1][`avgtemp_${notations[0]}`];
+    const condition = historyData[daysAgo-1].condition.text;
+
+    otherWeathers[`${daysAgo} Day(s) Ago`] = [
+      `${avgTemp}${notations[1]}`,
+      condition
+    ];
+  }
+
+  for (let daysAhead = 1; daysAhead < 3; daysAhead += 1) {
+    const avgTemp = forecastData[daysAhead].day[`avgtemp_${notations[0]}`];
+    const condition = forecastData[daysAhead].day.condition.text;
+
+    otherWeathers[`${daysAhead} Days Ahead`] = [
+      `${avgTemp}°${notations[1]}`,
+      condition
+    ];
+
+  }
+
+  return otherWeathers;
 }

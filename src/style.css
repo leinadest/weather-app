@@ -118,7 +118,7 @@ aside {
     gap: 15px;
 }
 
-aside .past-weather {
+aside .other-weather {
     flex: 1;
     color: white;
     text-align: center;
@@ -132,7 +132,7 @@ aside .past-weather {
     padding-top: 20px;
 }
 
-aside .past-weather:hover {
+aside .other-weather:hover {
     cursor: pointer;
     background-color: rgba(0, 0, 0, 0.3);
 }

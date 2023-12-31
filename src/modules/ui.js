@@ -1,136 +1,159 @@
 import getCurrentWeatherData, {
-    getLocationData,
-    getForecastData,
-    getHistory,
-    getMeasurementSystem
-} from './data';
-import { handleForm } from './events';
+  getLocationData,
+  getForecastData,
+  getHistoryData,
+  getMeasurementSystem,
+} from "./data";
+import { handleForm } from "./events";
+import { translateCondition, getIcon, getImage } from "./utils";
 
 export class Header {
-    constructor(containerElement) {
-        this.containerElement = containerElement;
-    }
+  constructor(containerElement) {
+    this.containerElement = containerElement;
+  }
 
-    render() {
-        const header = document.createElement('header');
-        
-        const logoImg = document.createElement('img');
-        logoImg.src = './images/partly-cloudy-day.svg';
-        header.appendChild(logoImg);
+  render() {
+    const header = document.createElement("header");
 
-        const titleH1 = document.createElement('h1');
-        titleH1.textContent = 'Weather';
-        header.appendChild(titleH1);
+    const logoImg = document.createElement("img");
+    logoImg.src = "./images/partly-cloudy-day.svg";
+    header.appendChild(logoImg);
 
-        const searchForm = document.createElement('form');
-        searchForm.addEventListener('submit', handleForm);
-        header.appendChild(searchForm);
+    const titleH1 = document.createElement("h1");
+    titleH1.textContent = "Weather";
+    header.appendChild(titleH1);
 
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Enter location';
-        searchForm.appendChild(searchInput);
+    const searchForm = document.createElement("form");
+    searchForm.addEventListener("submit", handleForm);
+    header.appendChild(searchForm);
 
-        const searchButton = document.createElement('button');
-        searchButton.classList = 'search';
-        searchForm.appendChild(searchButton);
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Enter location";
+    searchForm.appendChild(searchInput);
 
-        const containerDiv = document.createElement('div');
-        containerDiv.classList = 'container';
-        containerDiv.textContent = 'System:'
-        header.appendChild(containerDiv);
+    const searchButton = document.createElement("button");
+    searchButton.classList = "search";
+    searchForm.appendChild(searchButton);
 
-        const metricButton = document.createElement('button');
-        metricButton.textContent = 'Metric';
-        containerDiv.appendChild(metricButton);
+    const containerDiv = document.createElement("div");
+    containerDiv.classList = "container";
+    containerDiv.textContent = "System:";
+    header.appendChild(containerDiv);
 
-        const imperialButton = document.createElement('button');
-        imperialButton.textContent = 'Imperial';
-        containerDiv.appendChild(imperialButton);
+    const metricButton = document.createElement("button");
+    metricButton.textContent = "Metric";
+    containerDiv.appendChild(metricButton);
 
-        this.containerElement.appendChild(header);
-    }
+    const imperialButton = document.createElement("button");
+    imperialButton.textContent = "Imperial";
+    containerDiv.appendChild(imperialButton);
+
+    this.containerElement.appendChild(header);
+  }
 }
 
 export class Main {
-    constructor(containerElement) {
-        this.containerElement = containerElement;
-    }
+  constructor(containerElement) {
+    this.containerElement = containerElement;
+  }
 
-    render() {
-        const main = document.createElement('main');
+  render() {
+    this.main = document.createElement("main");
 
-        const darkBgDiv = document.createElement('div');
-        darkBgDiv.classList = 'dark-bg';
-        main.appendChild(darkBgDiv);
+    const darkBgDiv = document.createElement("div");
+    darkBgDiv.classList = "dark-bg";
+    this.main.appendChild(darkBgDiv);
 
-        this.locationH3 = document.createElement('h3');
-        this.locationH3.classList = 'location';
-        this.locationH3.textContent = 'Enter a location to see its weather information';
-        darkBgDiv.appendChild(this.locationH3);
+    this.locationH3 = document.createElement("h3");
+    this.locationH3.classList = "location";
+    this.locationH3.textContent = (
+      "Enter a location to see its weather information"
+    );
+    darkBgDiv.appendChild(this.locationH3);
 
-        this.tempH2 = document.createElement('h2');
-        this.tempH2.classList = 'temp';
-        darkBgDiv.appendChild(this.tempH2);
+    this.tempH2 = document.createElement("h2");
+    this.tempH2.classList = "temp";
+    darkBgDiv.appendChild(this.tempH2);
 
-        this.conditionH3 = document.createElement('h3');
-        this.conditionH3.classList = 'condition';
-        darkBgDiv.appendChild(this.conditionH3);
+    this.conditionH3 = document.createElement("h3");
+    this.conditionH3.classList = "condition";
+    darkBgDiv.appendChild(this.conditionH3);
 
-        this.extremaH3 = document.createElement('h3');
-        this.extremaH3.classList = 'extrema';
-        darkBgDiv.appendChild(this.extremaH3);
+    this.extremaH3 = document.createElement("h3");
+    this.extremaH3.classList = "extrema";
+    darkBgDiv.appendChild(this.extremaH3);
 
-        this.containerElement.appendChild(main);
-    }
+    this.containerElement.appendChild(this.main);
+  }
 
-    async updateWeatherData(
-        location, 
-        temp, 
-        condition, 
-        maxTemp, 
-        minTemp,
-        measurementSystem
-    ) {
-        if (measurementSystem === 'Metric') {
-            this.tempH2.textContent = `${temp}°C`;
-            this.extremaH3.textContent = `Max: ${maxTemp}°C, Min: ${minTemp}°C`;
-        } else {
-            this.tempH2.textContent = `${temp}°F`;
-            this.extremaH3.textContent = `Max: ${maxTemp}°F, Min: ${minTemp}°F`;
-        }
+  updateWeatherData(
+    location,
+    temp,
+    condition,
+    maxTemp,
+    minTemp,
+    measurementSystem,
+  ) {
+    let notation = "°F";
+    if (measurementSystem === "Metric") notation = "°C";
 
-        this.locationH3.textContent = `Location: ${location}`;
-        this.conditionH3.textContent = condition;
-    }
+    this.tempH2.textContent = `${temp}${notation}`;
+    this.extremaH3.textContent = (
+        `Max: ${maxTemp}${notation}, Min: ${minTemp}${notation}`
+    );
+
+    this.locationH3.textContent = `Location: ${location}`;
+    this.conditionH3.textContent = condition;
+
+    const image = getImage(translateCondition(condition));
+    this.main.style.backgroundImage = `url("./images/${image}")`;
+  }
 }
 
 export class Aside {
-    constructor(containerElement) {
-        this.containerElement = containerElement;
+  constructor(containerElement) {
+    this.containerElement = containerElement;
+  }
+
+  render() {
+    const aside = document.createElement("aside");
+
+    this.divs = {};
+    for (let i = 0; i < 5; i += 1) {
+      this.divs[i] = document.createElement("div");
+      this.divs[i].classList = "other-weather";
+      aside.appendChild(this.divs[i]);
     }
 
-    render() {
-        const aside = document.createElement('aside');
+    this.containerElement.appendChild(aside);
+  }
 
-        for (let i = 0; i < 5; i += 1) {
-            const div = document.createElement('div');
-            div.classList = 'past-weather';
-            aside.appendChild(div);
-        }
+  updateOtherWeathersData(otherWeathersData) {
+    for (let i = 0; i < 5; i += 1) {
+      const description = Object.keys(otherWeathersData)[i];
+      const [avgTemp, condition] = Object.values(otherWeathersData)[i];
+      const icon = getIcon(translateCondition(condition));
 
-        this.containerElement.appendChild(aside);
+      this.divs[i].innerHTML = description;
+      this.divs[i].style.backgroundImage = `url("./images/${icon}")`;
+
+      const avgTempH3 = document.createElement("h3");
+      avgTempH3.textContent = avgTemp;
+
+      this.divs[i].appendChild(avgTempH3);
     }
+  }
 }
 
 export class OverallInfoSection {
-    constructor(containerElement) {
-        this.containerElement = containerElement;
-    }
+  constructor(containerElement) {
+    this.containerElement = containerElement;
+  }
 
-    render() {
-        const overallInfoSection = document.createElement('section');
+  render() {
+    const overallInfoSection = document.createElement("section");
 
-        this.containerElement.appendChild(overallInfoSection);
-    }
+    this.containerElement.appendChild(overallInfoSection);
+  }
 }
