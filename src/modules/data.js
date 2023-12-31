@@ -1,14 +1,14 @@
 import changeDate from './utils';
 
-const baseURL = "https://api.weatherapi.com/v1";
-const APIKey = "25111dbd26004b48957195332232912";
+const baseURL = 'https://api.weatherapi.com/v1';
+const APIKey = '25111dbd26004b48957195332232912';
 
 let measurementSystem = 'Metric';
 
 // API FETCH FUNCTIONS
 
 /**
- * @param { string } location 
+ * @param { string } location
  * @returns the location data of a specified location
  */
 export async function getLocationData(location) {
@@ -18,8 +18,8 @@ export async function getLocationData(location) {
   return data.location;
 }
 
-/** 
- * @param { string } location 
+/**
+ * @param { string } location
  * @returns the current weather data of a specified location
  */
 export default async function getCurrentWeatherData(location) {
@@ -30,9 +30,9 @@ export default async function getCurrentWeatherData(location) {
 }
 
 /**
- * @param { string } location 
- * @param { int } days 
- * @returns the forecast data of a specified location by a specified number 
+ * @param { string } location
+ * @param { int } days
+ * @returns the forecast data of a specified location by a specified number
  * of days ahead
  */
 export async function getForecastData(location, dt) {
@@ -55,7 +55,7 @@ export async function getHistoryData(location, dt) {
 }
 
 /**
- * @param { string } location 
+ * @param { string } location
  * @returns the local time of the specified location (format: YYYY-MM-DD HH:MM)
  */
 export async function getLocalTime(location) {
@@ -73,7 +73,7 @@ export function setMeasurementSystem(system) {
 }
 
 /**
- * @param { string } location 
+ * @param { string } location
  * @returns the arguments necessary for the weather data on the main HTML
  * element
  */
@@ -109,7 +109,7 @@ export async function getMainWeatherData(locationInput) {
 }
 
 /**
- * @param { string } location 
+ * @param { string } location
  */
 export async function getOtherWeathersData(location) {
   const localDate = (await getLocalTime(location)).slice(0, 10);
@@ -118,7 +118,7 @@ export async function getOtherWeathersData(location) {
     (await getHistoryData(location, changeDate(localDate, -2))).day,
     (await getHistoryData(location, changeDate(localDate, -1))).day,
     (await getForecastData(location, changeDate(localDate, 1))).day,
-    (await getForecastData(location, changeDate(localDate, 2))).day
+    (await getForecastData(location, changeDate(localDate, 2))).day,
   ];
 
   let units = ['f', '°F'];
@@ -129,11 +129,10 @@ export async function getOtherWeathersData(location) {
   otherWeathersData.forEach((data, i) => {
     const avgTemp = data[`avgtemp_${units[0]}`];
     const condition = data.condition.text;
-    const daysAway = ((i - 3) >= 0) ? (i - 2) : (i - 3);
+    const daysAway = i - 3 >= 0 ? i - 2 : i - 3;
 
-    const description = (
-      (daysAway > 0) ? `${daysAway} Day(s) Ahead` : `${-daysAway} Day(s) Ago`
-    );
+    const description =
+      daysAway > 0 ? `${daysAway} Day(s) Ahead` : `${-daysAway} Day(s) Ago`;
 
     otherWeathers[i] = [description, `${avgTemp}${units[1]}`, condition];
   });
@@ -141,21 +140,28 @@ export async function getOtherWeathersData(location) {
   return otherWeathers;
 }
 
-// export async function getAdditionalData(locationInput) {
-//   const currentWeatherData = await getCurrentWeatherData(location);
-//   const forecastData = (await getForecastData(location, 1)).day[0];
+export async function getAdditionalData(location) {
+  const currentWeatherData = await getCurrentWeatherData(location);
 
-//   let units = ['f', '°F', 'mph', 'in'];
-//   if (measurementSystem === 'Metric') units = ['c', '°C', 'kph', 'mb'];
+  const u =
+    measurementSystem === 'Metric'
+      ? ['c', '°C', 'kph', 'mb', 'mm']
+      : ['f', '°F', 'mph', 'in', 'in'];
 
-//   const additionalData = {
-//     "It feels like: ": currentWeatherData[`feelslike_${units[0]}`],
-//     "Wind": {
-//       "Speed: ": currentWeatherData[`wind_${units[2]}`] + units[2],
-//       "Gust: ": currentWeatherData[`gust_${units[2]}`] + units[2],
-//       "Direction: ": currentWeatherData.wind_dir
-//     },
-//     "Pressure": currentWeatherData[`pressure_${units[3]}`] + units[3],
-//     "Precipitation": currentWeatherData
-//   }
-// }
+  return [
+    ['It feels like: ', `${currentWeatherData[`feelslike_${u[0]}`]}${u[1]}`],
+    [
+      'Wind',
+      [
+        `Speed: ${currentWeatherData[`wind_${u[2]}`]} ${u[2]}`,
+        `Gust: ${currentWeatherData[`gust_${u[2]}`]} ${u[2]}`,
+        `Direction: ${currentWeatherData.wind_dir}`,
+      ],
+    ],
+    ['Pressure', `${currentWeatherData[`pressure_${u[3]}`]} ${u[3]}`],
+    ['Precipitation', `${currentWeatherData[`precip_${u[4]}`]} ${u[4]}`],
+    ['Humidity', `${currentWeatherData.humidity}%`],
+    ['Cloud Coverage', `${currentWeatherData.cloud}%`],
+    ['UV Index', currentWeatherData.uv],
+  ];
+}

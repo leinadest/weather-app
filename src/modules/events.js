@@ -1,22 +1,25 @@
-import { header, main, aside } from '../index';
-import getCurrentWeatherData, { 
-    getLocationData,
-    getForecastData,
-    getMeasurementSystem,
-    getMainWeatherData,
-    getOtherWeathersData,
+import { header, main, aside, infoSection } from '../index';
+import getCurrentWeatherData, {
+  getLocationData,
+  getForecastData,
+  getMeasurementSystem,
+  getMainWeatherData,
+  getOtherWeathersData,
+  getAdditionalData,
 } from './data';
 
-export async function handleForm(e) {
-    e.preventDefault();
+export default async function handleForm(e) {
+  e.preventDefault();
 
-    const locationInput = e.target.querySelector('input').value;
-    const mainWeatherData = await getMainWeatherData(locationInput);
-    const otherWeathersData = await getOtherWeathersData(locationInput);
-    const measurementSystem = getMeasurementSystem();
+  const location = e.target.querySelector('input').value;
+  const mainWeatherData = await getMainWeatherData(location);
+  const otherWeathersData = await getOtherWeathersData(location);
+  const additionalData = await getAdditionalData(location);
 
-    if (!document.querySelector('aside')) aside.render();
+  if (!document.querySelector('aside')) aside.render();
+  if (!document.querySelector('.additional-info')) infoSection.render();
 
-    main.updateWeatherData(...mainWeatherData);
-    aside.updateOtherWeathersData(otherWeathersData, measurementSystem);
+  main.updateWeatherData(...mainWeatherData);
+  aside.updateOtherWeathersData(otherWeathersData);
+  infoSection.updateInfo(additionalData);
 }
