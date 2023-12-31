@@ -23,19 +23,6 @@ export class Header {
     titleH1.textContent = 'Weather';
     header.appendChild(titleH1);
 
-    const searchForm = document.createElement('form');
-    searchForm.addEventListener('submit', handleForm);
-    header.appendChild(searchForm);
-
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.placeholder = 'Enter location';
-    searchForm.appendChild(searchInput);
-
-    const searchButton = document.createElement('button');
-    searchButton.classList = 'search';
-    searchForm.appendChild(searchButton);
-
     const containerDiv = document.createElement('div');
     containerDiv.classList = 'container';
     containerDiv.textContent = 'System:';
@@ -48,6 +35,19 @@ export class Header {
     const imperialButton = document.createElement('button');
     imperialButton.textContent = 'Imperial';
     containerDiv.appendChild(imperialButton);
+
+    const searchForm = document.createElement('form');
+    searchForm.addEventListener('submit', handleForm);
+    header.appendChild(searchForm);
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Enter location';
+    searchForm.appendChild(searchInput);
+
+    const searchButton = document.createElement('button');
+    searchButton.classList = 'search';
+    searchForm.appendChild(searchButton);
 
     this.containerElement.appendChild(header);
   }

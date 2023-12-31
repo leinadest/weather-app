@@ -12,6 +12,7 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+    min-width: 600px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -22,7 +23,7 @@ header {
     background-color: lightsteelblue;
     padding: 10px 15px;
     display: flex;
-    row-gap: 15px;
+    gap: 15px;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
@@ -32,14 +33,24 @@ header img {
     width: 50px;
     height: 50px;
     filter: invert();
+    margin-right: -10px;
 }
 
-header h1 {
+header .container {
+    color: gray;
+    background-color: white;
+    padding: 5px 10px;
+    border: 2px black solid;
+    border-style: inset;
+    border-radius: 15px;
+    margin-inline: auto;
+}
+
+.container button {
     margin-left: 5px;
 }
 
 header form {
-    margin-left: auto;
     display: flex;
     align-items: center;
 }
@@ -48,6 +59,10 @@ header input {
     width: 300px;
     padding: 5px 15px;
     margin-right: 5px;
+    border-radius: 15px;
+}
+
+header button {
     border-radius: 15px;
 }
 
@@ -60,20 +75,6 @@ header button.search {
     background-repeat: no-repeat;
     background-position: center;
     border: none;
-}
-
-header .container {
-    color: gray;
-    background-color: white;
-    padding: 5px 10px;
-    border: 2px black solid;
-    border-style: inset;
-    border-radius: 15px;
-    margin-left: 25px;
-}
-
-header button {
-    border-radius: 15px;
 }
 
 main {
@@ -122,19 +123,13 @@ aside .other-weather {
     flex: 1;
     color: white;
     text-align: center;
-    box-sizing: border-box;
-    height: 100px;
+    height: 80px;
     background-color: rgba(0, 0, 0, 0.4);
     background-size: 80px;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 15px;
-    padding-top: 20px;
-}
-
-aside .other-weather:hover {
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.3);
+    padding: 20px 10px 0;
 }
 
 aside h3 {
@@ -154,12 +149,13 @@ aside h3 {
 .flex-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
+    row-gap: 0;
     justify-content: center;
 }
 
 .additional-info section {
-    flex: 1 1 130px;
+    flex: 1 1 140px;
     color: black;
     background-color: white;
     padding: 15px;
