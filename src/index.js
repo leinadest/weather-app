@@ -14,16 +14,16 @@ import './images/snowing.png';
 import './images/hailing.jpg';
 import './images/foggy.jpeg';
 import './images/stormy.jpg';
-import { Header, Main, Aside, InfoSection } from './modules/ui';
-import * as Data from './modules/data';
+import './modules/data';
+import { Header, Main } from './modules/ui';
+import handleForm, { handleButton } from './modules/events';
 
-const body = document.querySelector('body');
+document.addEventListener('DOMContentLoaded', () => {
+  Header.createHeader();
+  Main.createMain();
 
-export const header = new Header(body);
-export const main = new Main(body);
-export const aside = new Aside(body);
-export const infoSection = new InfoSection(body);
-
-header.render();
-main.render();
-
+  document.querySelector('form').addEventListener('submit', handleForm);
+  document.querySelectorAll('.container button').forEach((button) => {
+    button.addEventListener('click', handleButton);
+  });
+});

@@ -8,8 +8,8 @@ const currentState = {
   location: '',
   mainWeatherData: null,
   otherWeathersData: null,
-  additionalData: null
-}
+  additionalData: null,
+};
 
 // API FETCH FUNCTIONS
 
@@ -103,7 +103,14 @@ export async function getMainWeatherData(locationInput) {
     minTemp = `${forecastData.day.mintemp_f}°F`;
   }
 
-  return [location, temp, condition, maxTemp, minTemp, currentState.measurementSystem];
+  return [
+    location,
+    temp,
+    condition,
+    maxTemp,
+    minTemp,
+    currentState.measurementSystem,
+  ];
 }
 
 /**

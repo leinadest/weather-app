@@ -1,18 +1,16 @@
-import { header, main, aside, infoSection } from '../index';
-import getCurrentWeatherData, {
-  getLocationData,
-  getForecastData,
+import { Main, Aside, InfoSection } from './ui';
+import {
   getMainWeatherData,
   getOtherWeathersData,
   getAdditionalData,
   getCurrentState,
-  setCurrentState
+  setCurrentState,
 } from './data';
 
 /**
- * Get user-inputted location, then render and update the page with the weather 
+ * Get user-inputted location, then render and update the page with the weather
  * information of said location, then finally update currentState
- * @param { Event } e 
+ * @param { Event } e
  */
 export default async function handleForm(e) {
   e.preventDefault();
@@ -22,19 +20,24 @@ export default async function handleForm(e) {
   const otherWeathersData = await getOtherWeathersData(location);
   const additionalData = await getAdditionalData(location);
 
-  if (!document.querySelector('aside')) aside.render();
-  if (!document.querySelector('.additional-info')) infoSection.render();
+  if (!document.querySelector('aside')) {
+    Aside.createAside();
+  }
 
-  main.updateWeatherData(...mainWeatherData);
-  aside.updateOtherWeathersData(otherWeathersData);
-  infoSection.updateInfo(additionalData);
+  if (!document.querySelector('.additional-info')) {
+    InfoSection.createInfoSection();
+  }
+
+  Main.updateWeatherData(...mainWeatherData);
+  Aside.updateOtherWeathersData(otherWeathersData);
+  InfoSection.updateInfo(additionalData);
 
   setCurrentState({ location });
 }
 
 /**
  * Get user-inputted measurement system, then update the page accordingly
- * @param { Event } e 
+ * @param { Event } e
  */
 export async function handleButton(e) {
   const measurementSystem = e.target.textContent;
@@ -47,7 +50,7 @@ export async function handleButton(e) {
   const otherWeathersData = await getOtherWeathersData(location);
   const additionalData = await getAdditionalData(location);
 
-  main.updateWeatherData(...mainWeatherData);
-  aside.updateOtherWeathersData(otherWeathersData);
-  infoSection.updateInfo(additionalData);
+  Main.updateWeatherData(...mainWeatherData);
+  Aside.updateOtherWeathersData(otherWeathersData);
+  InfoSection.updateInfo(additionalData);
 }
