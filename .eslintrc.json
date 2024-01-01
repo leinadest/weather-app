@@ -13,6 +13,7 @@
     ],
     "rules": {
         "no-console": "off",
-        "max-classes-per-file": ["error", 5]
+        "max-classes-per-file": ["error", 5],
+        "no-param-reassign": ["error", { "props": false }]
     }
 }

@@ -1,4 +1,31 @@
-export default function changeDate(date, change) {
+// GENERAL
+
+/**
+ * Functions the same as fetch() except it returns Response.json() upon
+ * resolution and returns error upon rejection
+ * @param { string } url
+ * @param { object } options
+ */
+export default async function fetchData(url, options) {
+  try {
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    return error;
+  }
+}
+
+/**
+ * @param { string } date format: YYYY-MM-DD
+ * @param { int } change
+ * @returns date + change
+ */
+export function changeDate(date, change) {
   if (change === 0) return date;
 
   const increment = change > 0 ? 1 : -1;
@@ -51,6 +78,12 @@ export default function changeDate(date, change) {
   return changeDate(`${year}-${month}-${day}`, newRepetitions);
 }
 
+/**
+ * Translates a weather condition statement into a word that this application
+ * understands
+ * @param { string } condition
+ * @returns a one-word condition (ex. sunny, cloudy, raining)
+ */
 export function translateCondition(condition) {
   const conditionToLowerCase = condition.toLowerCase();
   if (
@@ -95,6 +128,10 @@ export function translateCondition(condition) {
   return null;
 }
 
+/**
+ * @param { string } condition
+ * @returns the icon file related to the given condition
+ */
 export function getIcon(condition) {
   if (condition === 'sunny') return 'sun.svg';
   if (condition === 'cloudy') return 'cloud.svg';
@@ -106,6 +143,10 @@ export function getIcon(condition) {
   return null;
 }
 
+/**
+ * @param { string } condition
+ * @returns the image file related to the given condition
+ */
 export function getImage(condition) {
   if (condition === 'sunny') return 'sunny.jpg';
   if (condition === 'cloudy') return 'cloudy.jpg';
@@ -115,4 +156,23 @@ export function getImage(condition) {
   if (condition === 'foggy') return 'foggy.jpeg';
   if (condition === 'stormy') return 'stormy.jpg';
   return null;
+}
+
+// VALIDATIONS
+
+/**
+ * Determines whether the given location is found by the application's APIs
+ * @param { string } location
+ * @returns boolean
+ */
+export async function isValidLocation(location) {
+  const baseURL = 'https://api.weatherapi.com/v1';
+  const APIKey = '25111dbd26004b48957195332232912';
+  const url = `${baseURL}/current.json?key=${APIKey}&q=${location}`;
+
+  const response = await fetchData(url);
+
+  if (response instanceof Error) return false;
+
+  return true;
 }

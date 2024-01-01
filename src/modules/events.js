@@ -6,19 +6,40 @@ import {
   getCurrentState,
   setCurrentState,
 } from './data';
+import { isValidLocation } from './utils';
+
+/**
+ * Reset the search form's validity if it's invalid, so that user can re-enter
+ * invalid input
+ * @param { Event } e
+ */
+export async function handleInput(e) {
+  const input = e.target;
+  if (!input.checkValidity()) input.setCustomValidity('');
+}
 
 /**
  * Get user-inputted location, then render and update the page with the weather
  * information of said location, then finally update currentState
  * @param { Event } e
  */
-export default async function handleForm(e) {
+export async function handleForm(e) {
   e.preventDefault();
 
-  const location = e.target.querySelector('input').value;
-  const mainWeatherData = await getMainWeatherData(location);
-  const otherWeathersData = await getOtherWeathersData(location);
-  const additionalData = await getAdditionalData(location);
+  const form = e.target;
+  const input = form.querySelector('input');
+  const locationInput = input.value;
+
+  const locationIsValid = await isValidLocation(locationInput);
+  if (!locationIsValid) {
+    input.setCustomValidity('Cannot find location. Please try again.');
+    form.reportValidity();
+    return;
+  }
+
+  const mainWeatherData = await getMainWeatherData(locationInput);
+  const otherWeathersData = await getOtherWeathersData(locationInput);
+  const additionalData = await getAdditionalData(locationInput);
 
   if (!document.querySelector('aside')) {
     Aside.createAside();
@@ -28,11 +49,11 @@ export default async function handleForm(e) {
     InfoSection.createInfoSection();
   }
 
-  Main.updateWeatherData(...mainWeatherData);
+  Main.updateWeatherData(mainWeatherData);
   Aside.updateOtherWeathersData(otherWeathersData);
   InfoSection.updateInfo(additionalData);
 
-  setCurrentState({ location });
+  setCurrentState({ location: locationInput });
 }
 
 /**
@@ -50,7 +71,7 @@ export async function handleButton(e) {
   const otherWeathersData = await getOtherWeathersData(location);
   const additionalData = await getAdditionalData(location);
 
-  Main.updateWeatherData(...mainWeatherData);
+  Main.updateWeatherData(mainWeatherData);
   Aside.updateOtherWeathersData(otherWeathersData);
   InfoSection.updateInfo(additionalData);
 }

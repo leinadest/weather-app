@@ -1,4 +1,4 @@
-import changeDate from './utils';
+import fetchData, { changeDate } from './utils';
 
 const baseURL = 'https://api.weatherapi.com/v1';
 const APIKey = '25111dbd26004b48957195332232912';
@@ -15,54 +15,53 @@ const currentState = {
 
 /**
  * @param { string } location
- * @returns the location data of a specified location
+ * @returns the location data of a specified location upon resolution
  */
 export async function getLocationData(location) {
   const url = `${baseURL}/current.json?key=${APIKey}&q=${location}`;
-  const response = await fetch(url);
-  const data = await response.json();
+  const data = await fetchData(url);
+
   return data.location;
 }
 
 /**
  * @param { string } location
- * @returns the current weather data of a specified location
+ * @returns the current weather data of a specified location upon resolution
  */
-export default async function getCurrentWeatherData(location) {
+export async function getCurrentWeatherData(location) {
   const url = `${baseURL}/current.json?key=${APIKey}&q=${location}`;
-  const response = await fetch(url);
-  const data = await response.json();
+  const data = await fetchData(url);
   return data.current;
 }
 
 /**
  * @param { string } location
- * @param { int } days
- * @returns the forecast data of a specified location by a specified number
- * of days ahead
+ * @param { int } dt format: YYYY-MM-DD
+ * @returns the forecast data of a specified location at a specified date upon
+ * resolution
  */
 export async function getForecastData(location, dt) {
   const url = `${baseURL}/forecast.json?key=${APIKey}&q=${location}&dt=${dt}`;
-  const response = await fetch(url);
-  const data = await response.json();
+  const data = await fetchData(url);
   return data.forecast.forecastday[0];
 }
 
 /**
  * @param { string } location
- * @param { string } dt dt format: "YYYY-MM-DD"
- * @returns the weather data of a past date specified by dt
+ * @param { string } dt format: "YYYY-MM-DD"
+ * @returns the weather data of a specified location at a past date specified
+ * by dt upon resolution
  */
 export async function getHistoryData(location, dt) {
   const url = `${baseURL}/history.json?key=${APIKey}&q=${location}&dt=${dt}`;
-  const response = await fetch(url);
-  const data = await response.json();
+  const data = await fetchData(url);
   return data.forecast.forecastday[0];
 }
 
 /**
  * @param { string } location
  * @returns the local time of the specified location (format: YYYY-MM-DD HH:MM)
+ * upon resolution
  */
 export async function getLocalTime(location) {
   return (await getLocationData(location)).localtime;
@@ -72,36 +71,25 @@ export async function getLocalTime(location) {
 
 /**
  * @param { string } location
- * @returns the arguments necessary for the weather data on the main HTML
- * element
+ * @returns the weather data used in main upon resolution
  */
 export async function getMainWeatherData(locationInput) {
-  const localTime = getLocalTime(locationInput);
+  const localTime = await getLocalTime(locationInput);
   const locationData = await getLocationData(locationInput);
   const currentWeatherData = await getCurrentWeatherData(locationInput);
   const forecastData = await getForecastData(locationInput, localTime);
 
   let location = locationData.name ?? '';
-  if (locationData.region && locationData.region !== location) {
-    location += `, ${locationData.region}`;
-  }
-
+  location +=
+    locationData.region !== location ? `, ${locationData.region}` : '';
   location += `, ${locationData.country}`;
 
-  const condition = currentWeatherData.condition.text;
-  let temp;
-  let maxTemp;
-  let minTemp;
+  const units = currentState.measurementSystem === 'Metric' ? '°C' : '°F';
 
-  if (currentState.measurementSystem === 'Metric') {
-    temp = `${currentWeatherData.temp_c}°C`;
-    maxTemp = `${forecastData.day.maxtemp_c}°C`;
-    minTemp = `${forecastData.day.mintemp_c}°C`;
-  } else {
-    temp = `${currentWeatherData.temp_f}°F`;
-    maxTemp = `${forecastData.day.maxtemp_f}°F`;
-    minTemp = `${forecastData.day.mintemp_f}°F`;
-  }
+  const temp = `${currentWeatherData.temp_c}${units}`;
+  const maxTemp = `${forecastData.day.maxtemp_c}${units}`;
+  const minTemp = `${forecastData.day.mintemp_c}${units}`;
+  const condition = currentWeatherData.condition.text;
 
   return [
     location,
@@ -115,6 +103,7 @@ export async function getMainWeatherData(locationInput) {
 
 /**
  * @param { string } location
+ * @returns the weather data used in aside upon resolution
  */
 export async function getOtherWeathersData(location) {
   const localDate = (await getLocalTime(location)).slice(0, 10);
@@ -145,6 +134,10 @@ export async function getOtherWeathersData(location) {
   return otherWeathers;
 }
 
+/**
+ * @param { string } location
+ * @returns the data used in the Additional Section upon resolution
+ */
 export async function getAdditionalData(location) {
   const currentWeatherData = await getCurrentWeatherData(location);
 
@@ -171,10 +164,19 @@ export async function getAdditionalData(location) {
   ];
 }
 
+/**
+ * @returns currentState
+ */
 export function getCurrentState() {
   return currentState;
 }
 
+/**
+ * Set specified values of currentState by passing state as an object with the
+ * specified property key-value pairs. For example, passing state =
+ * { location: 'london' } will result in currentState.location = 'london'
+ * @param { object } state
+ */
 export function setCurrentState(state) {
   Object.entries(state).forEach((entry) => {
     const [key, value] = entry;

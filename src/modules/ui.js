@@ -58,7 +58,11 @@ export class Main {
     document.querySelector('body').appendChild(main);
   }
 
-  static updateWeatherData(location, temp, condition, maxTemp, minTemp) {
+  /**
+   * Display Main's weather data
+   * @param { [string, string, string, string, string] } param0
+   */
+  static updateWeatherData([location, temp, condition, maxTemp, minTemp]) {
     const tempH2 = document.querySelector('.temp');
     const locationH3 = document.querySelector('.location');
     const conditionH3 = document.querySelector('.condition');
@@ -89,6 +93,10 @@ export class Aside {
     document.querySelector('body').appendChild(aside);
   }
 
+  /**
+   * Display Aside's weather data
+   * @param { Array } otherWeathersData
+   */
   static updateOtherWeathersData(otherWeathersData) {
     const divs = document.querySelectorAll('.other-weather');
 
@@ -127,6 +135,10 @@ export class InfoSection {
     document.querySelector('body').appendChild(infoSection);
   }
 
+  /**
+   * Display InfoSection's additional info
+   * @param { Array } additionalData
+   */
   static updateInfo(additionalData) {
     const sections = document.querySelectorAll('.additional-info section');
 

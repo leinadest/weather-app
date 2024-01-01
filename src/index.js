@@ -16,12 +16,13 @@ import './images/foggy.jpeg';
 import './images/stormy.jpg';
 import './modules/data';
 import { Header, Main } from './modules/ui';
-import handleForm, { handleButton } from './modules/events';
+import { handleForm, handleButton, handleInput } from './modules/events';
 
 document.addEventListener('DOMContentLoaded', () => {
   Header.createHeader();
   Main.createMain();
 
+  document.querySelector('input').addEventListener('input', handleInput);
   document.querySelector('form').addEventListener('submit', handleForm);
   document.querySelectorAll('.container button').forEach((button) => {
     button.addEventListener('click', handleButton);
